@@ -27,8 +27,11 @@ class Game:
         return list({result.player for result in self.results()})
 
     def average_score(self, player):
-        pass
-
+        player_scores = [result.score for result in Result.all if result.player is player and result.game is self]
+        if len(player_scores):
+            return sum(player_scores) / len(player_scores)
+        else:
+            return 0
 class Player:
     all = []
 
@@ -56,10 +59,44 @@ class Player:
         return list({result.game for result in self.results()})
 
     def played_game(self, game):
-        pass
+        for result in Result.all:
+            if result.game == game:
+                if result.player is self:
+                    return True
+        return False
 
     def num_times_played(self, game):
-        pass
+        game_counter = 0
+        for result in Result.all:
+            if result.game == game:
+                if result.player is self:
+                    game_counter +=1
+        return game_counter
+    
+    @classmethod
+    def highest_scored(cls, game):
+        # receives game object
+        # returns player with higest avg score
+        # set winner, avg score, and highest avg
+        # collect all games for that game
+        # iterate through all players
+        # iterate through games
+        # check if player played game
+        # average scores
+        # reset highest score
+        winner = None
+        temp_avg = 0
+        highest_avg = 0
+        games = [result for result in Result.all if result.game is game]
+        for player in cls.all:
+            scores = [game.score for game in games if game.player is player]
+            if len(scores):
+                temp_avg = sum(scores) / len(scores)
+            if temp_avg > highest_avg:
+                highest_avg = temp_avg
+                winner = player
+            temp_avg = 0
+        return winner
 
 class Result:
     all = []
@@ -77,9 +114,9 @@ class Result:
     @score.setter
     def score(self, new_score):
         if not isinstance(new_score, int):
-            raise TypeError("score must be an integer")
-        elif not 0 < len(new_score) < 5001:
-            raise ValueError("score must be between 1-5000")
+            raise TypeError("Score must be an integer")
+        elif not 1 <= new_score <= 5000:
+            raise ValueError("Score must be between 1-5000")
         elif hasattr(self, "score"):
             raise AttributeError("Already set score")
         else:
